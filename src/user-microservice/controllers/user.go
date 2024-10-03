@@ -8,10 +8,11 @@ package controllers
 import (
 	"net/http"
 
-	"../common"
-	"../daos"
-	"../models"
-	"../utils"
+	"user-microservice/common"
+	"user-microservice/daos"
+	"user-microservice/models"
+	"user-microservice/utils"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
@@ -48,16 +49,16 @@ func (u *User) Authenticate(ctx *gin.Context) {
 		// Generate token string
 		tokenString, err = u.utils.GenerateJWT(username, "")
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+			ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 			log.Debug("[ERROR]: ", err)
 			return
 		}
 
-		token := models.Token{tokenString}
+		token := models.Token{Token: tokenString}
 		// Return token string to the client
 		ctx.JSON(http.StatusOK, token)
 	} else {
-		ctx.JSON(http.StatusUnauthorized, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusUnauthorized, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 	}
 }
 
@@ -76,22 +77,22 @@ func (u *User) Authenticate(ctx *gin.Context) {
 func (u *User) AddUser(ctx *gin.Context) {
 	var addUser models.AddUser
 	if err := ctx.ShouldBindJSON(&addUser); err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		return
 	}
 
 	if err := addUser.Validate(); err != nil {
-		ctx.JSON(http.StatusBadRequest, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusBadRequest, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		return
 	}
 
-	user := models.User{bson.NewObjectId(), addUser.Name, addUser.Password}
+	user := models.User{ID: bson.NewObjectId(), Name: addUser.Name, Password: addUser.Password}
 	err := u.userDAO.Insert(user)
 	if err == nil {
-		ctx.JSON(http.StatusOK, models.Message{"Successfully"})
+		ctx.JSON(http.StatusOK, models.Message{Message: "Successfully"})
 		log.Debug("Registered a new user = " + user.Name + ", password = " + user.Password)
 	} else {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		log.Debug("[ERROR]: ", err)
 	}
 }
@@ -114,7 +115,7 @@ func (u *User) ListUsers(ctx *gin.Context) {
 	if err == nil {
 		ctx.JSON(http.StatusOK, users)
 	} else {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		log.Debug("[ERROR]: ", err)
 	}
 }
@@ -139,7 +140,7 @@ func (u *User) GetUserByID(ctx *gin.Context) {
 	if err == nil {
 		ctx.JSON(http.StatusOK, user)
 	} else {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		log.Debug("[ERROR]: ", err)
 	}
 }
@@ -164,7 +165,7 @@ func (u *User) GetUserByParams(ctx *gin.Context) {
 	if err == nil {
 		ctx.JSON(http.StatusOK, user)
 	} else {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		log.Debug("[ERROR]: ", err)
 	}
 }
@@ -185,9 +186,9 @@ func (u *User) DeleteUserByID(ctx *gin.Context) {
 	err := u.userDAO.DeleteByID(id)
 
 	if err == nil {
-		ctx.JSON(http.StatusOK, models.Message{"Successfully"})
+		ctx.JSON(http.StatusOK, models.Message{Message: "Successfully"})
 	} else {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		log.Debug("[ERROR]: ", err)
 	}
 }
@@ -206,16 +207,16 @@ func (u *User) DeleteUserByID(ctx *gin.Context) {
 func (u *User) UpdateUser(ctx *gin.Context) {
 	var user models.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusBadRequest, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		return
 	}
 
 	err := u.userDAO.Update(user)
 	if err == nil {
-		ctx.JSON(http.StatusOK, models.Message{"Successfully"})
+		ctx.JSON(http.StatusOK, models.Message{Message: "Successfully"})
 		log.Debug("Registered a new user = " + user.Name + ", password = " + user.Password)
 	} else {
-		ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+		ctx.JSON(http.StatusInternalServerError, models.Error{Code: common.StatusCodeUnknown, Message: err.Error()})
 		log.Debug("[ERROR]: ", err)
 	}
 }

@@ -8,8 +8,9 @@ package databases
 import (
 	"time"
 
-	"../common"
-	"../models"
+	"user-microservice/common"
+	"user-microservice/models"
+
 	log "github.com/sirupsen/logrus"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -62,8 +63,7 @@ func (db *MongoDB) initData() error {
 
 	if count < 1 {
 		// Create admin/admin account
-		var user models.User
-		user = models.User{bson.NewObjectId(), "admin", "admin"}
+		user := models.User{ID: bson.NewObjectId(), Name: "admin", Password: "admin"}
 		err = collection.Insert(&user)
 	}
 

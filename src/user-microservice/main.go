@@ -8,16 +8,15 @@ package main
 import (
 	"io"
 	"os"
+	"user-microservice/common"
+	"user-microservice/controllers"
+	"user-microservice/databases"
+	_ "user-microservice/docs"
 
-	"./common"
-	"./controllers"
-	"./databases"
 	"github.com/gin-gonic/contrib/jwt"
 	"github.com/gin-gonic/gin"
-
-	_ "./docs"
-	"github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // Main manages main golang application
